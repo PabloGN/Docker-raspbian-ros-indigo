@@ -20,7 +20,8 @@ RUN apt-get install  --no-install-recommends -y vim aptitude wget
 
 # setup sources.list + keys
 RUN echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list
-RUN wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
+RUN wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key --no-check-certificate
+RUN apt-key add ros.key
 
 RUN apt-get update
 

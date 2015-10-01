@@ -16,7 +16,7 @@ RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1
 
 RUN apt-get update
 # instala herramientas
-RUN apt-get install vim aptitude wget
+RUN apt-get install  --no-install-recommends -y vim aptitude wget
 
 # setup sources.list + keys
 RUN echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list

@@ -6,16 +6,12 @@
 FROM sdhibit/rpi-raspbian 
 MAINTAINER Pablo González Nalda pablo.gonzalez@ehu.eus
 
-# setup environment
-#RUN locale-gen en_US.UTF-8
-ENV LANG=en_US.UTF-8 ROS_DISTRO=indigo
-
 RUN cd /root && \
-        echo "deb http://archive.raspbian.org/raspbian jessie main contrib ">/etc/apt/sources.list && \
+        echo "deb http://archive.raspbian.org/raspbian jessie main contrib firmware non-free rpi ">/etc/apt/sources.list && \
         apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116 && \
         echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list && \
         apt-get update && \
-        apt-get install --no-install-recommends -y vim aptitude wget sudo ca-certificates openssl &&  \
+        apt-get install --no-install-recommends -y vim aptitude wget sudo ca-certificates openssl locales locales-all &&  \
         wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key --no-check-certificate && \
         apt-key add ros.key && \
         apt-get install --no-install-recommends -y \
@@ -23,6 +19,10 @@ RUN cd /root && \
         python-rosinstall \
         python-vcstools && \
         rm -rf /var/lib/apt/lists/*
+
+# setup environment
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8 ROS_DISTRO=indigo
 
 # bootstrap rosdep
 RUN rosdep init && rosdep update
@@ -34,9 +34,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint
-COPY ./ros_entrypoint.sh /
-
-ENTRYPOINT ["/ros_entrypoint.sh"]
-CMD ["bash"]
-
-
+WORKDIR /root/
+COPY ./ros_entrypoint.sh rosentrypoint.sh
+ENTRYPOINT ./rosentrypoint.sh
+CMD ["/bin/bash"]

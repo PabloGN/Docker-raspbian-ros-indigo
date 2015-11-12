@@ -43,6 +43,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
     ros-indigo-ros-base=1.1.4-0* \
     && sudo rm -rf /var/lib/apt/lists/*
 
+RUN sudo ln -s /usr/lib/arm-linux-gnueabihf/liblog4cxx.so /usr/lib/
+
 # setup entrypoint
 WORKDIR /home/pi/
 COPY ./rep.sh rep.sh

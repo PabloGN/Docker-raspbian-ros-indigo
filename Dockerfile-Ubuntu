@@ -1,0 +1,53 @@
+# This is a modified copy of GitHub/ docker_images/ros/indigo/indigo-ros-core/Dockerfile
+# an auto generated Dockerfile for ros:indigo-ros-core
+# generated from templates/docker_images/create_ros_core_image.Dockerfile.em
+# generated on 2015-06-02 14:40:22 -0700
+
+# FROM sdhibit/rpi-raspbian
+# FROM resin/rpi-raspbian
+# FROM armv7/armhf-ubuntu
+FROM ioft/armhf-ubuntu:14.04.3
+MAINTAINER Pablo González Nalda pablo.gonzalez@ehu.eus
+
+USER root
+
+#         echo "deb http://archive.raspbian.org/raspbian jessie main contrib firmware non-free rpi ">/etc/apt/sources.list && \
+
+RUN cd /root && \
+	apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116 && \
+	echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list && \
+	apt-get update && \
+	apt-get install --no-install-recommends -y \
+            vim aptitude wget sudo ca-certificates openssl locales vlc-nox g++ htop tmux &&  \
+        wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key --no-check-certificate && \
+        apt-key add ros.key && \
+	apt-get install --no-install-recommends -y \
+            python-rosdep \
+            python-rosinstall \
+            python-vcstools && \
+	useradd pi && echo 'pi:hypriot' | chpasswd && echo "pi ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && mkdir -p /home/pi && chown pi:pi /home/pi
+
+USER pi
+
+COPY ./rep.sh rep.sh
+
+# setup environment
+RUN sudo locale-gen en_US.UTF-8 && sudo rosdep init && rosdep update && sudo apt-get update
+RUN sudo apt-get install -y \
+        ros-indigo-ros-core \
+        ros-indigo-ros-base \
+        ros-indigo-ros
+RUN sudo rm -rf /var/lib/apt/lists/*
+# && sudo ln -s /usr/lib/arm-linux-gnueabihf/liblog4cxx.so /usr/lib/
+
+ENV LANG=en_US.UTF-8 ROS_DISTRO=indigo
+
+# setup entrypoint
+WORKDIR /home/pi/
+COPY ./rep.sh /home/pi/rep.sh
+RUN sudo chown pi:pi rep.sh
+ENTRYPOINT ["./rep.sh"]
+CMD ["/bin/bash"]
+
+USER pi
+
